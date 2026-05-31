@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+    <!-- Home del Portal -->
+        <template id="portal_my_home_estudiantil_cards" inherit_id="portal.portal_my_home" priority="20">
+            <xpath expr="//div[@id='portal_common_category']" position="after">
+                <h3 class="my-3">Gestión Estudiantil</h3>
+                
+                <div class="o_portal_category row g-2 mt-3 mb-4">
+                    
+                    <div class="col-12 col-md-6 col-lg-4 mb-2 o_portal_card_wrapper">
+                        <a href="/my/subjects" title="Materias" class="o_portal_doc_link card text-decoration-none shadow-sm h-100 border-0">
+                            <div class="card-body p-3 d-flex align-items-center">
+                                <img src="/gestion_estudiantil/static/src/img/subject.svg" 
+                                     class="me-2" 
+                                     style="width: 20px; height: 20px; vertical-align: middle;"/>
+                                <span class="o_portal_doc_title">Materias</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-4 mb-2 o_portal_card_wrapper">
+                        <a href="/my/grades" title="Notas" class="o_portal_doc_link card text-decoration-none shadow-sm h-100 border-0">
+                            <div class="card-body p-3 d-flex align-items-center">
+                                <img src="/gestion_estudiantil/static/src/img/grade.svg" class="me-2" style="width: 20px; height: 20px; vertical-align: middle;"/>
+                                <span class="o_portal_doc_title">Notas</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-4 mb-2 o_portal_card_wrapper">
+                        <a href="/my/activities" title="Actividades" class="o_portal_doc_link card text-decoration-none shadow-sm h-100 border-0">
+                            <div class="card-body p-3 d-flex align-items-center">
+                                <img src="/gestion_estudiantil/static/src/img/activity.svg" class="me-2" style="width: 20px; height: 20px; vertical-align: middle;"/>
+                                <span class="o_portal_doc_title">Actividades</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-4 mb-2 o_portal_card_wrapper">
+                        <a href="/my/absences" title="Ausencias" class="o_portal_doc_link card text-decoration-none shadow-sm h-100 border-0">
+                            <div class="card-body p-3 d-flex align-items-center">
+                                <img src="/gestion_estudiantil/static/src/img/absence.svg" class="me-2" style="width: 20px; height: 20px; vertical-align: middle;"/>
+                                <span class="o_portal_doc_title">Ausencias</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-4 mb-2 o_portal_card_wrapper">
+                        <a href="/my/sections" title="Secciones" class="o_portal_doc_link card text-decoration-none shadow-sm h-100 border-0">
+                            <div class="card-body p-3 d-flex align-items-center">
+                                <img src="/gestion_estudiantil/static/src/img/section.svg" class="me-2" style="width: 20px; height: 20px; vertical-align: middle;"/>
+                                <span class="o_portal_doc_title">Secciones</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-4 mb-2 o_portal_card_wrapper">
+                        <a href="/my/teachers" title="Profesores" class="o_portal_doc_link card text-decoration-none shadow-sm h-100 border-0">
+                            <div class="card-body p-3 d-flex align-items-center">
+                                <img src="/portal/static/src/img/portal-addresses.svg" class="me-2" style="width: 20px; height: 20px; vertical-align: middle;"/>
+                                <span class="o_portal_doc_title">Profesores</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </xpath>
+        </template>
+
+    <!-- Seccion de Materias -->
+        <template id="portal_my_subjects_template" name="Mis Materias">
+            <t t-call="portal.portal_layout">
+                <div id="wrap" class="container mt-4">
+                    <h3>Mis Materias Inscritas</h3>
+                    <div class="card shadow-sm border-0 bg-white p-3">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th>Materia</th>
+                                    <th>Profesor</th>
+                                    <th>Sección</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="secciones" t-as="seccion">
+                                    <tr>
+                                        <td><strong t-esc="seccion.subject_id.name"/></td>
+                                        <td><t t-esc="seccion.teacher_id.name if seccion.teacher_id else 'No asignado'"/></td>
+                                        <td><t t-esc="seccion.name"/></td>
+                                        <td><span class="badge bg-info" t-esc="seccion.state"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+
+    <!-- Seccion de Actividades -->
+        <template id="portal_my_activities_template" name="Mis Actividades">
+            <t t-call="portal.portal_layout">
+                <div id="wrap" class="container mt-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3>Tareas y Actividades</h3>
+                    </div>
+
+                    <div class="card shadow-sm border-0 p-3 mb-4 bg-light">
+                        <form method="get" class="row g-2">
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <input type="text" name="search" class="form-control" placeholder="Buscar actividad..." t-att-value="search"/>
+                                    <button class="btn btn-primary" type="submit">
+                                        <i class="fa fa-search"/>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <select name="subject_filter" class="form-select" 
+                                        onchange="document.querySelector('select[name=\'section_filter\']').value=''; this.form.submit()">
+                                    <option value="">Todas las Materias</option>
+                                    <t t-foreach="materias" t-as="m">
+                                        <option t-att-value="m.id" t-att-selected="m.id == subject_filter">
+                                            <t t-esc="m.name"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <select name="section_filter" class="form-select" onchange="this.form.submit()">
+                                    <option value="">Todas las Secciones</option>
+                                    <t t-foreach="secciones" t-as="s">
+                                        <option t-att-value="s.id" t-att-selected="s.id == section_filter">
+                                            <t t-esc="s.name"/> (<t t-esc="s.subject_id.name"/>)
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+
+                            <div class="col-md-2">
+                                <a href="/my/activities" class="btn btn-outline-secondary w-100">Limpiar</a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="row mt-3">
+                        <t t-if="not actividades">
+                            <div class="col-12 text-center py-5">
+                                <h4 class="text-muted">No se encontraron actividades con estos filtros.</h4>
+                            </div>
+                        </t>
+                        <t t-foreach="actividades" t-as="act">
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100 shadow-sm border-0 border-start border-primary border-4">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <h5 class="card-title text-primary" t-esc="act.name"/>
+                                            <span class="badge bg-secondary" t-esc="act.section_id.name"/>
+                                        </div>
+                                        <h6 class="card-subtitle mb-2 text-muted">
+                                            <i class="fa fa-book me-1"/> <t t-esc="act.subject_id.name"/> | 
+                                            <i class="fa fa-user me-1"/> <t t-esc="act.teacher_id.name"/>
+                                        </h6>
+                                        <div class="card-text text-muted mb-2 text-truncate" style="max-height: 50px;">
+                                            <t t-out="act.description"/>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-end mt-3">
+                                            <small class="text-danger" t-if="act.date_deadline">
+                                                <i class="fa fa-clock-o me-1"/> Entrega: <span t-field="act.date_deadline"/>
+                                            </small>
+                                            <a t-attf-href="/my/activities/#{act.id}" class="btn btn-sm btn-primary">Ver / Entregar</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+        <template id="portal_actividad_page" name="Entregar Actividad">
+            <t t-call="portal.portal_layout">
+                <div id="wrap" class="container mt-4">
+                    
+                    <div class="mb-3">
+                        <a href="/my/activities" class="btn btn-sm btn-secondary">
+                            <i class="fa fa-arrow-left"/> Volver a mis actividades
+                        </a>
+                    </div>
+
+                    <h3><t t-esc="activity.name"/></h3>
+                    
+                    <div class="card shadow-sm border-0 bg-white p-4 mt-3">
+                        <h5 class="text-primary">Instrucciones del Profesor:</h5>
+                        <div t-raw="activity.description" class="mb-4 text-muted mt-2"/>
+                        
+                        <p class="text-danger" t-if="activity.date_deadline">
+                            <strong><i class="fa fa-calendar"/> Fecha límite de entrega: </strong> 
+                            <span t-field="activity.date_deadline"/>
+                        </p>
+
+                        <hr/>
+
+                        <div t-if="request.params.get('success')" class="alert alert-success">
+                            <i class="fa fa-check-circle"/> ¡Tu archivo ha sido enviado correctamente! El profesor ya ha sido notificado.
+                        </div>
+
+                        <h5 class="mb-3 mt-2">Subir mi entrega</h5>
+                        <form action="/gestion/actividad/subir" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <input type="hidden" name="activity_id" t-att-value="activity.id"/>
+                            
+                            <div class="mb-3">
+                                <label for="archivo_tarea" class="form-label text-muted">Selecciona tu archivo (PDF, Word, Excel, etc.):</label>
+                                <input type="file" name="archivo_tarea" id="archivo_tarea" class="form-control" required="1"/>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-upload"/> Enviar Tarea
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+        <!-- Seccion de Notas -->
+
+        <template id="portal_my_grades_template" name="Mis Notas">
+            <t t-call="portal.portal_layout">
+                <div id="wrap" class="container mt-4">
+                    <h3>Historial de Notas</h3>
+                    <div class="list-group mt-3">
+                        <t t-if="not notas">
+                            <div class="alert alert-info">No se encontraron notas registradas para su usuario.</div>
+                        </t>
+                        <t t-foreach="notas" t-as="nota">
+                            <div class="list-group-item d-flex justify-content-between align-items-center border-0 shadow-sm mb-2 bg-white rounded">
+                                <div>
+                                    <h6 class="mb-0" t-esc="nota.activity_id.name"/>
+                                    <small class="text-muted">Docente: <t t-esc="nota.teacher_id.name"/></small>
+                                    <div t-if="nota.teacher_feedback" class="text-muted fst-italic mt-1" style="font-size: 0.9em;">
+                                        "<t t-esc="nota.teacher_feedback"/>"
+                                    </div>
+                                </div>
+                                <span t-attf-class="badge rounded-pill p-2 #{'bg-danger' if nota.score &lt; 10 else 'bg-success'}" style="min-width: 50px; font-size: 1.1em;">
+                                    <t t-esc="nota.score"/>
+                                </span>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+        <!-- Seccion de Asistencias -->
+
+        <template id="portal_my_absences_template" name="Mis Ausencias">
+            <t t-call="portal.portal_layout">
+                <div id="wrap" class="container mt-4">
+                    <h3>Registro de Asistencia</h3>
+                    <div class="card shadow-sm border-0 bg-white p-3">
+                        <table class="table table-striped mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Sección</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="asistencias" t-as="asistencia">
+                                    <tr>
+                                        <td><span t-field="asistencia.attendance_id.date"/></td>
+                                        <td><span t-esc="asistencia.attendance_id.section_id.name"/></td>
+                                        <td>
+                                            <span t-if="asistencia.present" class="badge bg-success">Presente</span>
+                                            <span t-else="" class="badge bg-danger">Ausente</span>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+        <!-- Seccion de Secciones -->
+
+        <template id="portal_my_sections_template" name="Mis Secciones">
+            <t t-call="portal.portal_layout">
+                <div id="wrap" class="container mt-4">
+                    <h3>Mis Secciones</h3>
+                    <div class="row row-cols-1 row-cols-md-2 g-4">
+                        <t t-foreach="secciones" t-as="seccion">
+                            <div class="col">
+                                <div class="card h-100 shadow-sm">
+                                    <div class="card-body">
+                                        <h5 class="card-title" t-esc="seccion.name"/>
+                                        <p class="card-text">
+                                            <strong>Materia:</strong> <span t-esc="seccion.subject_id.name"/><br/>
+                                            <strong>Profesor:</strong> <span t-esc="seccion.teacher_id.name"/><br/>
+                                            <strong>Estado:</strong> <span class="badge bg-info" t-esc="seccion.state"/>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+        <!-- Seccion de Profesores -->
+
+        <template id="portal_my_teachers_template" name="Mis Profesores">
+            <t t-call="portal.portal_layout">
+                <div id="wrap" class="container mt-4">
+                    <h3>Mis Profesores</h3>
+                    <div class="row row-cols-1 row-cols-md-3 g-4">
+                        <t t-foreach="profesores" t-as="teacher">
+                            <div class="col">
+                                <div class="card h-100 text-center shadow-sm p-3">
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <img t-if="teacher.image_1920" t-att-src="image_data_uri(teacher.image_1920)" class="rounded-circle img-fluid" style="width: 100px; height: 100px; object-fit: cover;"/>
+                                            <img t-else="" src="/base/static/img/avatar.png" class="rounded-circle img-fluid" style="width: 100px; height: 100px;"/>
+                                        </div>
+                                        <h5 class="card-title" t-esc="teacher.name"/>
+                                        <p class="card-text text-muted" t-esc="teacher.email"/>
+                                        <p class="card-text" t-esc="teacher.phone"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+    </data>
+</odoo>

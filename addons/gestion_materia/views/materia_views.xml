@@ -1,0 +1,56 @@
+<odoo>
+    <record id="view_gestion_materia_tree" model="ir.ui.view">
+        <field name= "name">gestion.materia.list</field>
+        <field name="model">gestion.materia</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="codigo_materia"/>
+                <field name="teacher_id"/>
+                <field name="type"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_gestion_materia_form" model="ir.ui.view">
+        <field name="name">gestion.materia.form</field>
+        <field name="model">gestion.materia</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="codigo_materia"/>
+                        <field name="teacher_id"/>
+                        <field name="type"/>
+                        <field name="active"/>
+                    </group>
+                    <group>
+                    <group string="Información del Período">
+                        <field name="periodo_academico"/>
+                        <field name="date_start"/>
+                        <field name="date_end"/>
+                        <field name="estado_periodo" widget="badge" 
+                               decoration-success="estado_periodo == 'abierto'" 
+                               decoration-danger="estado_periodo == 'cerrado'"/>
+                    </group>
+                    </group>
+
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_gestion_materia" model="ir.actions.act_window">
+        <field name="name">Materias</field>
+        <field name="res_model">gestion.materia</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_gestion_materia" 
+            name="Materias" 
+            parent="gestion_profesorado.menu_root" 
+            sequence="20"
+            action="action_gestion_materia"/>
+</odoo>

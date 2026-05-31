@@ -1,0 +1,9 @@
+<odoo>
+    <record id="materia_electiva_iv" model="gestion.materia">
+        <field name="name">Electiva IV</field>
+        <field name="codigo_materia">ELEC-IV-001</field>
+        <field name="teacher_id" eval="False"/>
+        <field name="type">electiva</field>
+        <field name="active">True</field>
+    </record>
+</odoo>

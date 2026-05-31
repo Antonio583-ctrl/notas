@@ -1,0 +1,19 @@
+<odoo>
+    <data>
+        <record id="module_category_gestion_educativa" model="ir.module.category">
+            <field name="name">Gestión Educativa</field>
+        </record>
+
+        <record id="group_profesor" model="res.groups">
+            <field name="name">Profesor</field>
+            <field name="category_id" ref="module_category_gestion_educativa"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <record id="group_estudiante" model="res.groups">
+            <field name="name">Estudiante</field>
+            <field name="category_id" ref="module_category_gestion_educativa"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+    </data>
+</odoo>

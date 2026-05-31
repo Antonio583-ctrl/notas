@@ -1,0 +1,45 @@
+<odoo>
+    <record id="view_gestion_seccion_form_estudiantes" model="ir.ui.view">
+        <field name="name">gestion.seccion.form.estudiantes</field>
+        <field name="model">gestion.seccion</field>
+        <field name="inherit_id" ref="gestion_secciones.view_gestion_seccion_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="Estudiantes">
+                    <field name="student_ids" widget="many2many_tags"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+     <record id="view_gestion_activity_form_inherit" model="ir.ui.view">
+        <field name="name">gestion.activity.form.inherit</field>
+        <field name="model">gestion.activity</field>
+        <field name="inherit_id" ref="gestion_profesorado.view_gestion_activity_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='teacher_id']" position="after">
+                <field name="subject_id"/>
+                <field name="section_id"/>
+                <field name="periodo_academico"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_gestion_seccion_form_estudiantes" model="ir.ui.view">
+        <field name="name">gestion.seccion.form.estudiantes</field>
+        <field name="model">gestion.seccion</field>
+        <field name="inherit_id" ref="gestion_secciones.view_gestion_seccion_form"/>
+        <field name="arch" type="xml">
+            
+            <xpath expr="//sheet" position="inside">
+                
+                <group string="Estudiantes">
+                    <field name="student_ids" widget="many2many_tags"/>
+                </group>
+                
+            </xpath>
+            
+        </field>
+    </record>
+
+</odoo>

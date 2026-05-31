@@ -1,0 +1,73 @@
+<odoo>
+  <data>
+
+    <record model="ir.ui.view" id="grade_grade_list">
+      <field name="name">grade.grade.list</field>
+      <field name="model">grade.grade</field>
+      <field name="arch" type="xml">
+        <list>
+          <field name="student_id"/>
+          <field name="teacher_id"/>
+          <field name="activity_id"/>
+          <field name="score"/>
+          <field name="teacher_feedback"/>
+        </list>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="grade_grade_form">
+      <field name="name">grade.grade.form</field>
+      <field name="model">grade.grade</field>
+      <field name="arch" type="xml">
+        <form>
+          <sheet>
+
+            <div class="oe_title">
+                <h1>
+                    <field name="student_id" placeholder="Escribir Nombre del Estudiante"/>
+                </h1>
+            </div>
+
+            <group>
+              <group>
+                <field name="activity_id"/>
+                <field name="score"/>
+              </group>
+              <group>
+                <field name="teacher_id"/>
+              </group>
+            </group>
+
+            <notebook>
+              <page string="Retroalimentación" name="feedback">
+                <field name="teacher_feedback" placeholder="Escriba sus comentarios aquí..."/>
+              </page>
+            </notebook>
+
+          </sheet>
+        </form>
+      </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="action_grade_grade">
+      <field name="name">Calificaciones</field>
+      <field name="res_model">grade.grade</field>
+      <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem name="Gestión Calificaciones" id="menu_gestion_calificaciones_root"/>
+
+    <menuitem name="Calificaciones"
+              id="menu_grade_grade"
+              parent="menu_gestion_calificaciones_root"
+              action="action_grade_grade"
+              sequence="10"/>
+
+    <menuitem name="Historial de Calificaciones"
+              id="menu_student_grade"
+              parent="menu_gestion_calificaciones_root"
+              action="action_student_grade"
+              sequence="20"/>
+
+  </data>
+</odoo>

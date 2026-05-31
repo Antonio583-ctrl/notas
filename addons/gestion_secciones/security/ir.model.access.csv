@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_gestion_seccion_admin,access_gestion_seccion_admin,model_gestion_seccion,base.group_system,1,1,1,1
+access_gestion_seccion_profesor,access_gestion_seccion_profesor,model_gestion_seccion,gestion_profesorado.group_profesor,1,0,0,0

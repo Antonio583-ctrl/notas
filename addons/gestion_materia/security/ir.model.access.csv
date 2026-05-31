@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_gestion_materias_admin,access_gestion_materias_admin,model_gestion_materia,base.group_system,1,1,1,1
+access_gestion_materias_user,access_gestion_materias_user,model_gestion_materia,base.group_user,1,0,0,0
+access_gestion_materias_profesor,access_gestion_materias_profesor,model_gestion_materia,gestion_profesorado.group_profesor,1,0,0,0

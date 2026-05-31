@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_gestion_activity_form_inherit_student" model="ir.ui.view">
+        <field name="name">gestion.activity.form.inherit.student</field>
+        <field name="model">gestion.activity</field>
+        <field name="inherit_id" ref="gestion_profesorado.view_gestion_activity_form"/>
+        <field name="arch" type="xml">
+            
+            <xpath expr="//field[@name='submission_ids']/list/field[@name='submission_date']" position="before">
+                <field name="student_id"/>
+            </xpath>
+            
+        </field>
+    </record>
+</odoo>
