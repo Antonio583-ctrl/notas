@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista Lista (antes tree) -->
+    <record id="view_gestion_participacion_tree" model="ir.ui.view">
+        <field name="name">gestion.participacion.clase.tree</field>
+        <field name="model">gestion.participacion.clase</field>
+        <field name="arch" type="xml">
+            <list string="Sesiones de Participación">
+                <field name="fecha"/>
+                <field name="seccion_id"/>
+                <field name="teacher_id"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Form (sin cambios, aquí sí va <form>) -->
+    <record id="view_gestion_participacion_form" model="ir.ui.view">
+        <field name="name">gestion.participacion.clase.form</field>
+        <field name="model">gestion.participacion.clase</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="fecha"/>
+                        <field name="subject_id" 
+                                domain="[('teacher_id.user_id', '=', uid)]"
+                                options="{'no_create': True}"/>
+                        <field name="seccion_id" 
+                                options="{'no_create': True}"/>
+                        <field name="teacher_id" readonly="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Estudiantes">
+                            <field name="participacion_line_ids">
+                                <list editable="bottom">
+                                    <field name="student_id"/>
+                                    <field name="participo" widget="boolean_toggle"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción -->
+    <record id="action_gestion_participacion" model="ir.actions.act_window">
+        <field name="name">Participación en Clase</field>
+        <field name="res_model">gestion.participacion.clase</field>
+        <field name="view_mode">list,form</field>  <!-- Cambiado tree → list -->
+    </record>
+
+    <!-- Menú -->
+    <menuitem id="menu_gestion_participacion" 
+            name="Participación en Clase" 
+            parent="menu_estudiantil_root" 
+            action="action_gestion_participacion" 
+            groups="gestion_profesorado.group_profesor"
+            sequence="15"/>
+</odoo>

@@ -49,4 +49,32 @@
         <field name="perm_create" eval="0"/>  
         <field name="perm_unlink" eval="0"/>  
         </record>
+
+    <!-- ============================================================ -->
+    <!-- REGLAS DE SEGURIDAD PARA PARTICIPACIÓN EN CLASE              -->
+    <!-- ============================================================ -->
+
+    <!-- Profesores: solo ven sus propias sesiones de participación -->
+    <record id="rule_participacion_teacher_only" model="ir.rule">
+        <field name="name">Participación: Profesores solo ven las suyas</field>
+        <field name="model_id" ref="model_gestion_participacion_clase"/>
+        <field name="domain_force">[('teacher_id.user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('gestion_profesorado.group_profesor'))]"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+
+    <!-- Profesores: solo ven líneas de sus propias sesiones -->
+    <record id="rule_participacion_line_teacher_only" model="ir.rule">
+        <field name="name">Participación Línea: Profesores solo ven las suyas</field>
+        <field name="model_id" ref="model_gestion_participacion_line"/>
+        <field name="domain_force">[('participacion_id.teacher_id.user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('gestion_profesorado.group_profesor'))]"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
 </odoo>
