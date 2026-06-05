@@ -2,8 +2,6 @@
 
 ---
 
-titulooooooooooo
-
 ### Grupo: Participación en clase y notas finales
 
 1. Implementación del Apartado de **Participación en Clase**
