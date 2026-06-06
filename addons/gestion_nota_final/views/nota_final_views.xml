@@ -1,0 +1,62 @@
+<odoo>
+    <record id="view_nota_final_tree" model="ir.ui.view">
+        <field name="name">nota.final.tree</field>
+        <field name="model">nota.final</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="student_id"/>
+                <field name="section_id"/>
+                <field name="nota_final"/>
+                <field name="promedio"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_nota_final_form" model="ir.ui.view">
+        <field name="name">nota.final.form</field>
+        <field name="model">nota.final</field>
+        <field name="arch" type="xml">
+            <form string="Nota Final">
+                <sheet>
+                    <group>
+                        <field name="student_id" readonly="1"/>
+                        <field name="section_id" readonly="1"/>
+                        <field name="subject_id" readonly="1"/>
+                        <field name="teacher_id" readonly="1"/>
+                        <field name="periodo_academico" readonly="1"/>
+                        <field name="active" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="nota_final" readonly="1"/>
+                        <field name="promedio" readonly="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Detalle de Tipos">
+                            <field name="detalle_ids">
+                                <tree editable="false">
+                                    <field name="tipo_evaluacion"/>
+                                    <field name="peso"/>
+                                    <field name="promedio_tipo"/>
+                                    <field name="aporte"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_nota_final" model="ir.actions.act_window">
+        <field name="name">Notas Finales</field>
+        <field name="res_model">nota.final</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p>Vista de notas finales por estudiante y sección.</p>
+        </field>
+    </record>
+
+    <menuitem id="menu_nota_final_root" name="Notas Finales" sequence="95"/>
+    <menuitem id="menu_nota_final" parent="menu_nota_final_root" name="Gestión Nota Final" action="action_nota_final"/>
+</odoo>
