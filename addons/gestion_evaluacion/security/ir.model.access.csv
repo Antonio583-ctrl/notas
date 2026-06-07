@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_gestion_tipo_evaluacion_admin,gestion.tipo.evaluacion.admin,model_gestion_tipo_evaluacion,base.group_system,1,1,1,1
+access_gestion_tipo_evaluacion_profesor,gestion.tipo.evaluacion.profesor,model_gestion_tipo_evaluacion,gestion_profesorado.group_profesor,1,1,1,1
+access_gestion_tipo_evaluacion_estudiante,gestion.tipo.evaluacion.estudiante,model_gestion_tipo_evaluacion,gestion_estudiantil.group_estudiante,1,0,0,0
+access_gestion_periodo_admin,gestion.periodo.admin,model_gestion_periodo,base.group_system,1,1,1,1
+access_gestion_periodo_profesor,gestion.periodo.profesor,model_gestion_periodo,gestion_profesorado.group_profesor,1,0,0,0
+access_gestion_periodo_estudiante,gestion.periodo.estudiante,model_gestion_periodo,gestion_estudiantil.group_estudiante,1,0,0,0

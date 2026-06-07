@@ -16,7 +16,6 @@
         'views/student_views.xml',
         'views/attendance_view.xml',
         'views/inherit_views.xml',
-        'views/participacion_views.xml',
     ],
     'installable': True,
     'application': True,

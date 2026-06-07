@@ -1,0 +1,6 @@
+project-includes = ["**/*.py"]
+project-excludes = ["**/__pycache__", "**/*.pyc", "**/.git/**"]
+python-version = "3.12"
+python-platform = "linux"
+ignore-missing-imports = ["odoo", "odoo.*"]
+search-path = ["."]

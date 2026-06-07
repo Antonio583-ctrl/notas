@@ -9,6 +9,10 @@
             <xpath expr="//field[@name='submission_ids']/list/field[@name='submission_date']" position="before">
                 <field name="student_id"/>
             </xpath>
+
+            <xpath expr="//field[@name='section_id']" position="after">
+                <field name="tipo_evaluacion_id" domain="[('seccion_id', '=', section_id)]" options="{'no_create': True, 'no_open': True}"/>
+            </xpath>
             
         </field>
     </record>

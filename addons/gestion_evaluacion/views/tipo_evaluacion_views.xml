@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vistas para gestion.tipo.evaluacion -->
+    <record id="view_gestion_tipo_evaluacion_form" model="ir.ui.view">
+        <field name="name">gestion.tipo.evaluacion.form</field>
+        <field name="model">gestion.tipo.evaluacion</field>
+        <field name="arch" type="xml">
+            <form string="Configuración de Evaluación">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Nombre de la Categoría de Evaluación"/>
+                        <h1>
+                            <field name="name" placeholder="Ej: Proyecto Final, Asistencia, Exámenes"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Asignación y Filtros">
+                            <field name="materia_id" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="seccion_id" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="periodo_id" domain="[('activo', '=', True)]" options="{'no_create': True, 'no_open': True}"/>
+                        </group>
+                        <group string="Ponderación">
+                            <field name="porcentaje" widget="percentage" placeholder="Ej: 0.20 para 20%"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_gestion_tipo_evaluacion_tree" model="ir.ui.view">
+        <field name="name">gestion.tipo.evaluacion.tree</field>
+        <field name="model">gestion.tipo.evaluacion</field>
+        <field name="arch" type="xml">
+            <list string="Tipos de Evaluación">
+                <field name="name"/>
+                <field name="materia_id"/>
+                <field name="seccion_id"/>
+                <field name="porcentaje"/>
+                <field name="periodo_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_gestion_tipo_evaluacion" model="ir.actions.act_window">
+        <field name="name">Tipos de Evaluación</field>
+        <field name="res_model">gestion.tipo.evaluacion</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Defina aquí los tipos de evaluación con sus porcentajes por sección.
+            </p>
+        </field>
+    </record>
+
+    <!-- Vistas para gestion.periodo -->
+    <record id="view_gestion_periodo_form" model="ir.ui.view">
+        <field name="name">gestion.periodo.form</field>
+        <field name="model">gestion.periodo</field>
+        <field name="arch" type="xml">
+            <form string="Período Académico">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="activo"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_gestion_periodo_tree" model="ir.ui.view">
+        <field name="name">gestion.periodo.tree</field>
+        <field name="model">gestion.periodo</field>
+        <field name="arch" type="xml">
+            <list string="Períodos Académicos">
+                <field name="name"/>
+                <field name="activo"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_gestion_periodo" model="ir.actions.act_window">
+        <field name="name">Períodos Académicos</field>
+        <field name="res_model">gestion.periodo</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Cree y gestione los períodos académicos aquí.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menús para los modelos agrupados en un submenú de configuración -->
+    <menuitem id="menu_gestion_evaluacion_config"
+              name="Configuración de Evaluaciones"
+              parent="gestion_estudiantil.menu_estudiantil_root"
+              sequence="50"/>
+
+    <menuitem id="menu_gestion_periodo"
+              name="Períodos Académicos"
+              parent="menu_gestion_evaluacion_config"
+              action="action_gestion_periodo"
+              sequence="10"/>
+
+    <menuitem id="menu_gestion_tipo_evaluacion"
+              name="Tipos de Evaluación"
+              parent="menu_gestion_evaluacion_config"
+              action="action_gestion_tipo_evaluacion"
+              sequence="20"/>
+</odoo>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Período académico activo por defecto -->
+        <record id="periodo_activo_default" model="gestion.periodo">
+            <field name="name">2026-I</field>
+            <field name="activo">True</field>
+        </record>
+
+        <!-- Materia por defecto para las evaluaciones predeterminadas -->
+        <record id="materia_default" model="gestion.materia">
+            <field name="name">Materia de Ejemplo</field>
+            <field name="codigo_materia">MAT-EJEM</field>
+            <field name="date_start" eval="time.strftime('%Y-01-01')"/>
+            <field name="date_end" eval="time.strftime('%Y-12-31')"/>
+        </record>
+
+        <!-- Sección por defecto para las evaluaciones predeterminadas -->
+        <record id="seccion_default" model="gestion.seccion">
+            <field name="name">Sección A</field>
+            <field name="subject_id" ref="materia_default"/>
+        </record>
+
+        <!-- Tipos de evaluación por defecto -->
+        <record id="eval_asistencia" model="gestion.tipo.evaluacion">
+            <field name="name">Asistencia</field>
+            <field name="porcentaje">0.20</field>
+            <field name="materia_id" ref="materia_default"/>
+            <field name="seccion_id" ref="seccion_default"/>
+            <field name="periodo_id" ref="periodo_activo_default"/>
+        </record>
+
+        <record id="eval_proyecto_final" model="gestion.tipo.evaluacion">
+            <field name="name">Proyecto Final</field>
+            <field name="porcentaje">0.80</field>
+            <field name="materia_id" ref="materia_default"/>
+            <field name="seccion_id" ref="seccion_default"/>
+            <field name="periodo_id" ref="periodo_activo_default"/>
+        </record>
+    </data>
+</odoo>
