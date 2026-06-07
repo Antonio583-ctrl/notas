@@ -1,3 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_nota_final_user,access_nota_final,model_gestion_nota_final,,1,0,0,0
-access_nota_final_line_user,access_nota_final_line,model_gestion_nota_final_line,,1,0,0,0
+access_nota_final_detalle_user,gestion.nota.final.detalle,model_gestion_nota_final_detalle,,1,0,0,0

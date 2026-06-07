@@ -17,7 +17,7 @@
     "data": [
         "security/ir.model.access.csv",
         "views/nota_final_views.xml",
-        # "data/gestion_nota_final_demo.xml"
+        "data/gestion_nota_final_demo.xml"
     ],
     "installable": True,
     "application": False,

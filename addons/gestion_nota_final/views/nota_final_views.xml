@@ -7,7 +7,7 @@
                 <field name="student_nombre" string="Estudiante"/>
                 <field name="subject_id" string="Materia"/>
                 <field name="section_id" string="Sección"/>
-                <filter name="seccion_activa" string="Sección activa" domain="[('active', 'in', ['abierto', 'en progreso'])]"/>
+                <filter name="seccion_activa" string="Sección activa" domain="[('section_id.state', 'in', ['abierto', 'en progreso'])]"/>
             </search>
         </field>
     </record>
