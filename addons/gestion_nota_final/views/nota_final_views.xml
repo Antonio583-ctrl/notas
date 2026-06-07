@@ -4,10 +4,10 @@
         <field name="model">gestion.nota.final</field>
         <field name="arch" type="xml">
             <search>
-                <field name="student_nombre" string="Estudiante"/>
+                <field name="student_id" string="Estudiante"/>
                 <field name="subject_id" string="Materia"/>
                 <field name="section_id" string="Sección"/>
-                <filter name="seccion_activa" string="Sección activa" domain="[('active', 'in', ['abierto', 'en progreso'])]"/>
+                <filter name="estudiante_activo" string="Estudiante activo" domain="[('student_active', '=', True)]"/>
             </search>
         </field>
     </record>
@@ -17,12 +17,11 @@
         <field name="model">gestion.nota.final</field>
         <field name="arch" type="xml">
             <list string="Notas finales por estudiante">
-                <field name="student_nombre" string="Nombre"/>
-                <field name="student_apellido" string="Apellido"/>
+                <field name="student_id" string="Estudiante"/>
                 <field name="subject_id" string="Materia"/>
                 <field name="section_id" string="Sección"/>
                 <field name="teacher_id" string="Profesor"/>
-                <field name="active" string="Activo"/>
+                <field name="student_active" string="Estudiante Activo"/>
                 <field name="promedio" string="Promedio"/>
                 <field name="nota_final" string="Nota Final"/>
             </list>
@@ -36,7 +35,8 @@
             <form string="Detalle de notas - estudiante">
                 <sheet>
                     <group string="Información del estudiante">
-                        <field name="student_nombre" readonly="1" string="Nombre completo"/>
+                        <field name="student_id" readonly="1" string="Estudiante"/>
+                        <field name="student_active" readonly="1" string="Estudiante Activo"/>
                         <field name="subject_id" readonly="1"/>
                         <field name="section_id" readonly="1"/>
                         <field name="periodo_academico" readonly="1" string="Período"/>

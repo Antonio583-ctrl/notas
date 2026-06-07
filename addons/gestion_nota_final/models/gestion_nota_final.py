@@ -26,32 +26,22 @@ class NotaFinal(models.Model):
         'gestion.materia',
         string='Materia',
         related='section_id.subject_id',
-        store=True,
         readonly=True,
     )
     periodo_academico = fields.Char(
         string='Período Académico',
         related='subject_id.periodo_academico',
-        store=True,
         readonly=True,
     )
     teacher_id = fields.Many2one(
         'gestion.teacher',
         string='Profesor',
         related='section_id.teacher_id',
-        store=True,
         readonly=True,
     )
-    student_nombre = fields.Char(
-        string='Nombre',
-        compute='_compute_student_name',
-        store=True,
-        readonly=True,
-    )
-    student_apellido = fields.Char(
-        string='Apellido',
-        compute='_compute_student_name',
-        store=True,
+    student_active = fields.Boolean(
+        string='Estudiante Activo',
+        related='student_id.active',
         readonly=True,
     )
     detalle_ids = fields.One2many(
@@ -74,16 +64,6 @@ class NotaFinal(models.Model):
         default=True,
     )
 
-    # Separa el nombre completo en nombre y apellido
-    @api.depends('student_id.name')
-    def _compute_student_name(self):
-        for rec in self:
-            rec.student_nombre = ''
-            rec.student_apellido = ''
-            if rec.student_id and rec.student_id.name:
-                parts = rec.student_id.name.strip().split()
-                rec.student_nombre = parts[0] if parts else ''
-                rec.student_apellido = ' '.join(parts[1:]) if len(parts) > 1 else ''
 
     # Despues de crear una nota final, genera las lineas de detalle (tipos de evaluacion)
     @api.model_create_multi
