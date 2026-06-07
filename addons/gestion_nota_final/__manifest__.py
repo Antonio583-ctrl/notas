@@ -11,7 +11,7 @@
         "gestion_profesorado",
         "gestion_secciones",
         "gestion_materia",
-        # "gestion_evaluacion",
+        "gestion_evaluacion",
         "gestion_calificaciones"
     ],
     "data": [

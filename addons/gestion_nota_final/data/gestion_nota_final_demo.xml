@@ -1,191 +1,243 @@
 <odoo>
-    <record id="periodo_activo" model="gestion.periodo">
-        <field name="name">2026-I</field>
-        <field name="activo">True</field>
-    </record>
-
+    <!-- Profesor de ejemplo -->
     <record id="partner_teacher_1" model="res.partner">
-        <field name="name">Profesor Ejemplo</field>
-        <field name="email">profesor@example.com</field>
+        <field name="name">Profesor A</field>
     </record>
     <record id="teacher_1" model="gestion.teacher">
         <field name="partner_id" ref="partner_teacher_1"/>
     </record>
 
+    <!-- Estudiantes de ejemplo (3) -->
     <record id="partner_student_1" model="res.partner">
-        <field name="name">Estudiante Uno</field>
-        <field name="email">estudiante1@example.com</field>
+        <field name="name">Carlos Alvarez</field>
     </record>
     <record id="student_1" model="gestion.student">
         <field name="partner_id" ref="partner_student_1"/>
     </record>
 
     <record id="partner_student_2" model="res.partner">
-        <field name="name">Estudiante Dos</field>
-        <field name="email">estudiante2@example.com</field>
+        <field name="name">Jesús Dias</field>
     </record>
     <record id="student_2" model="gestion.student">
         <field name="partner_id" ref="partner_student_2"/>
     </record>
 
     <record id="partner_student_3" model="res.partner">
-        <field name="name">Estudiante Tres</field>
-        <field name="email">estudiante3@example.com</field>
+        <field name="name">Ana García</field>
     </record>
     <record id="student_3" model="gestion.student">
         <field name="partner_id" ref="partner_student_3"/>
     </record>
 
-    <record id="subject_math" model="gestion.materia">
-        <field name="name">Matemáticas</field>
-        <field name="codigo_materia">MAT2026</field>
+    <!-- Materias: A y B -->
+    <record id="subject_a" model="gestion.materia">
+        <field name="name">Materia A</field>
+        <field name="codigo_materia">MA-001</field>
         <field name="periodo_academico">2026-I</field>
         <field name="date_start">2026-01-01</field>
         <field name="date_end">2026-06-30</field>
         <field name="teacher_id" ref="teacher_1"/>
     </record>
 
-    <record id="subject_physics" model="gestion.materia">
-        <field name="name">Física</field>
-        <field name="codigo_materia">FIS2026</field>
+    <record id="subject_b" model="gestion.materia">
+        <field name="name">Materia B</field>
+        <field name="codigo_materia">MB-002</field>
         <field name="periodo_academico">2026-I</field>
         <field name="date_start">2026-01-01</field>
         <field name="date_end">2026-06-30</field>
         <field name="teacher_id" ref="teacher_1"/>
     </record>
 
-    <record id="section_active" model="gestion.seccion">
+    <!-- Secciones: A (activa) y B (activa) -->
+    <record id="section_a" model="gestion.seccion">
         <field name="name">A</field>
-        <field name="subject_id" ref="subject_math"/>
+        <field name="subject_id" ref="subject_a"/>
         <field name="teacher_id" ref="teacher_1"/>
         <field name="state">abierto</field>
     </record>
 
-    <record id="section_closed" model="gestion.seccion">
+    <record id="section_b" model="gestion.seccion">
         <field name="name">B</field>
-        <field name="subject_id" ref="subject_physics"/>
+        <field name="subject_id" ref="subject_b"/>
         <field name="teacher_id" ref="teacher_1"/>
-        <field name="state">finalizado</field>
+        <field name="state">abierto</field>
     </record>
 
-    <record id="tipo_tarea_active" model="gestion.tipo.evaluacion">
-        <field name="name">Tarea en Casa</field>
-        <field name="materia_id" ref="subject_math"/>
-        <field name="seccion_id" ref="section_active"/>
-        <field name="porcentaje">0.4</field>
-        <field name="periodo_id" ref="periodo_activo"/>
+    <!-- Tipos de evaluación: tres tipos + asistencia + participación -->
+    <!-- Tipo 1 -->
+    <record id="tipo_eval_1" model="gestion.tipo.evaluacion">
+        <field name="name">Exámenes en Clase</field>
+        <field name="materia_id" ref="subject_a"/>
+        <field name="seccion_id" ref="section_a"/>
+        <field name="porcentaje">0.3</field>
     </record>
-    <record id="tipo_examen_active" model="gestion.tipo.evaluacion">
-        <field name="name">Examen en Aula</field>
-        <field name="materia_id" ref="subject_math"/>
-        <field name="seccion_id" ref="section_active"/>
-        <field name="porcentaje">0.4</field>
-        <field name="periodo_id" ref="periodo_activo"/>
-    </record>
-    <record id="tipo_asistencia_active" model="gestion.tipo.evaluacion">
-        <field name="name">Asistencia</field>
-        <field name="materia_id" ref="subject_math"/>
-        <field name="seccion_id" ref="section_active"/>
+
+    <!-- Tipo 2 -->
+    <record id="tipo_eval_2" model="gestion.tipo.evaluacion">
+        <field name="name">Tareas en Casa</field>
+        <field name="materia_id" ref="subject_a"/>
+        <field name="seccion_id" ref="section_a"/>
         <field name="porcentaje">0.2</field>
-        <field name="periodo_id" ref="periodo_activo"/>
     </record>
 
-    <record id="tipo_examen_closed" model="gestion.tipo.evaluacion">
-        <field name="name">Examen Final</field>
-        <field name="materia_id" ref="subject_physics"/>
-        <field name="seccion_id" ref="section_closed"/>
-        <field name="porcentaje">1.0</field>
-        <field name="periodo_id" ref="periodo_activo"/>
+    <!-- Tipo 3 -->
+    <record id="tipo_eval_3" model="gestion.tipo.evaluacion">
+        <field name="name">Proyecto</field>
+        <field name="materia_id" ref="subject_a"/>
+        <field name="seccion_id" ref="section_a"/>
+        <field name="porcentaje">0.25</field>
     </record>
 
-    <record id="activity_homework_1" model="gestion.activity">
+    <!-- Asistencia -->
+    <record id="tipo_asistencia" model="gestion.tipo.evaluacion">
+        <field name="name">Asistencia</field>
+        <field name="materia_id" ref="subject_a"/>
+        <field name="seccion_id" ref="section_a"/>
+        <field name="porcentaje">0.15</field>
+    </record>
+
+    <!-- Participación -->
+    <record id="tipo_participacion" model="gestion.tipo.evaluacion">
+        <field name="name">Participacion en Clase</field>
+        <field name="materia_id" ref="subject_a"/>
+        <field name="seccion_id" ref="section_a"/>
+        <field name="porcentaje">0.1</field>
+    </record>
+
+    <!-- Actividades asociadas a los tipos (3 actividades para ejemplo) -->
+    <record id="activity_1" model="gestion.activity">
+        <!-- Actividad: examen -->
+        <field name="name">Examen Parcial</field>
+        <field name="teacher_id" ref="teacher_1"/>
+        <field name="subject_id" ref="subject_a"/>
+        <field name="section_id" ref="section_a"/>
+        <field name="tipo_evaluacion_id" ref="tipo_eval_1"/>
+    </record>
+
+    <record id="activity_2" model="gestion.activity">
+        <!-- Actividad: tarea -->
         <field name="name">Tarea 1</field>
         <field name="teacher_id" ref="teacher_1"/>
-        <field name="subject_id" ref="subject_math"/>
-        <field name="section_id" ref="section_active"/>
-        <field name="tipo_evaluacion_id" ref="tipo_tarea_active"/>
+        <field name="subject_id" ref="subject_a"/>
+        <field name="section_id" ref="section_a"/>
+        <field name="tipo_evaluacion_id" ref="tipo_eval_2"/>
     </record>
 
-    <record id="activity_exam_1" model="gestion.activity">
-        <field name="name">Examen 1</field>
+    <record id="activity_3" model="gestion.activity">
+        <!-- Actividad: proyecto -->
+        <field name="name">Proyecto Final</field>
         <field name="teacher_id" ref="teacher_1"/>
-        <field name="subject_id" ref="subject_math"/>
-        <field name="section_id" ref="section_active"/>
-        <field name="tipo_evaluacion_id" ref="tipo_examen_active"/>
+        <field name="subject_id" ref="subject_a"/>
+        <field name="section_id" ref="section_a"/>
+        <field name="tipo_evaluacion_id" ref="tipo_eval_3"/>
     </record>
 
-    <record id="activity_attendance_1" model="gestion.activity">
-        <field name="name">Asistencia Clase 1</field>
-        <field name="teacher_id" ref="teacher_1"/>
-        <field name="subject_id" ref="subject_math"/>
-        <field name="section_id" ref="section_active"/>
-        <field name="tipo_evaluacion_id" ref="tipo_asistencia_active"/>
+    <!-- Notas para actividades (grade.grade) -->
+    <record id="grade_carlos_exam" model="grade.grade">
+        <field name="student_id" ref="student_1"/>
+        <field name="activity_id" ref="activity_1"/>
+        <field name="score">9.0</field>
     </record>
 
+    <record id="grade_carlos_task" model="grade.grade">
+        <field name="student_id" ref="student_1"/>
+        <field name="activity_id" ref="activity_2"/>
+        <field name="score">8.0</field>
+    </record>
+
+    <record id="grade_jesus_exam" model="grade.grade">
+        <field name="student_id" ref="student_2"/>
+        <field name="activity_id" ref="activity_1"/>
+        <field name="score">7.0</field>
+    </record>
+
+    <record id="grade_ana_project" model="grade.grade">
+        <field name="student_id" ref="student_3"/>
+        <field name="activity_id" ref="activity_3"/>
+        <field name="score">10.0</field>
+    </record>
+
+    <!-- Sesiones de asistencia (2 sesiones de ejemplo) -->
     <record id="attendance_session_1" model="gestion.attendance">
-        <field name="date">2026-01-15</field>
-        <field name="subject_id" ref="subject_math"/>
-        <field name="section_id" ref="section_active"/>
+        <field name="date">2026-03-01</field>
+        <field name="subject_id" ref="subject_a"/>
+        <field name="section_id" ref="section_a"/>
         <field name="state">confirmed</field>
-        <field name="tipo_evaluacion_id" ref="tipo_asistencia_active"/>
+        <field name="tipo_evaluacion_id" ref="tipo_asistencia"/>
     </record>
 
-    <record id="attendance_line_1" model="gestion.attendance_line">
+    <record id="attendance_session_2" model="gestion.attendance">
+        <field name="date">2026-03-08</field>
+        <field name="subject_id" ref="subject_a"/>
+        <field name="section_id" ref="section_a"/>
+        <field name="state">confirmed</field>
+        <field name="tipo_evaluacion_id" ref="tipo_asistencia"/>
+    </record>
+
+    <!-- Líneas de asistencia: marcar presencia/ausencia por estudiante -->
+    <record id="attendance_line_carlos_1" model="gestion.attendance_line">
         <field name="attendance_id" ref="attendance_session_1"/>
         <field name="student_id" ref="student_1"/>
         <field name="present">True</field>
     </record>
 
-    <record id="attendance_session_2" model="gestion.attendance">
-        <field name="date">2026-01-22</field>
-        <field name="subject_id" ref="subject_math"/>
-        <field name="section_id" ref="section_active"/>
-        <field name="state">confirmed</field>
-        <field name="tipo_evaluacion_id" ref="tipo_asistencia_active"/>
+    <record id="attendance_line_jesus_1" model="gestion.attendance_line">
+        <field name="attendance_id" ref="attendance_session_1"/>
+        <field name="student_id" ref="student_2"/>
+        <field name="present">True</field>
     </record>
 
-    <record id="attendance_line_2" model="gestion.attendance_line">
+    <record id="attendance_line_ana_1" model="gestion.attendance_line">
+        <field name="attendance_id" ref="attendance_session_1"/>
+        <field name="student_id" ref="student_3"/>
+        <field name="present">False</field>
+    </record>
+
+    <record id="attendance_line_carlos_2" model="gestion.attendance_line">
+        <field name="attendance_id" ref="attendance_session_2"/>
+        <field name="student_id" ref="student_1"/>
+        <field name="present">True</field>
+    </record>
+
+    <record id="attendance_line_jesus_2" model="gestion.attendance_line">
         <field name="attendance_id" ref="attendance_session_2"/>
         <field name="student_id" ref="student_2"/>
         <field name="present">False</field>
     </record>
 
-    <record id="grade_student_1_homework" model="grade.grade">
-        <field name="student_id" ref="student_1"/>
-        <field name="activity_id" ref="activity_homework_1"/>
-        <field name="score">8.0</field>
+    <!-- Participaciones: registros y líneas con puntaje (ejemplo) -->
+    <!-- <record id="participation_session_1" model="gestion.participacion">
+        <field name="date">2026-03-02</field>
+        <field name="subject_id" ref="subject_a"/>
+        <field name="section_id" ref="section_a"/>
+        <field name="tipo_evaluacion_id" ref="tipo_participacion"/>
     </record>
 
-    <record id="grade_student_1_exam" model="grade.grade">
+    <record id="participation_line_carlos" model="gestion.participacion_line">
+        <field name="participacion_id" ref="participation_session_1"/>
         <field name="student_id" ref="student_1"/>
-        <field name="activity_id" ref="activity_exam_1"/>
         <field name="score">9.0</field>
     </record>
 
-    <record id="grade_student_2_homework" model="grade.grade">
+    <record id="participation_line_jesus" model="gestion.participacion_line">
+        <field name="participacion_id" ref="participation_session_1"/>
         <field name="student_id" ref="student_2"/>
-        <field name="activity_id" ref="activity_homework_1"/>
-        <field name="score">7.5</field>
-    </record>
+        <field name="score">8.0</field>
+    </record> -->
 
-    <record id="grade_student_2_exam" model="grade.grade">
-        <field name="student_id" ref="student_2"/>
-        <field name="activity_id" ref="activity_exam_1"/>
-        <field name="score">6.5</field>
-    </record>
-
-    <record id="nota_final_student_1" model="nota.final">
+    <!-- Crear registros de nota final para que se muestren en la lista -->
+    <record id="nota_final_carlos_a" model="gestion.nota.final">
         <field name="student_id" ref="student_1"/>
-        <field name="section_id" ref="section_active"/>
+        <field name="section_id" ref="section_a"/>
     </record>
 
-    <record id="nota_final_student_2" model="nota.final">
+    <record id="nota_final_jesus_a" model="gestion.nota.final">
         <field name="student_id" ref="student_2"/>
-        <field name="section_id" ref="section_active"/>
+        <field name="section_id" ref="section_a"/>
     </record>
 
-    <record id="nota_final_student_3" model="nota.final">
+    <record id="nota_final_ana_b" model="gestion.nota.final">
         <field name="student_id" ref="student_3"/>
-        <field name="section_id" ref="section_closed"/>
+        <field name="section_id" ref="section_b"/>
     </record>
 </odoo>
