@@ -1,3 +1,7 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_nota_final_user,access_nota_final,model_gestion_nota_final,,1,0,0,0
-access_nota_final_detalle_user,gestion.nota.final.detalle,model_gestion_nota_final_detalle,,1,0,0,0
+access_nota_final_admin,access_nota_final_admin,model_gestion_nota_final,base.group_system,1,1,1,1
+access_nota_final_detalle_admin,access_nota_final_detalle_admin,model_gestion_nota_final_detalle,base.group_system,1,1,1,1
+access_nota_final_profesor,access_nota_final_profesor,model_gestion_nota_final,gestion_profesorado.group_profesor,1,0,0,0
+access_nota_final_detalle_profesor,access_nota_final_detalle_profesor,model_gestion_nota_final_detalle,gestion_profesorado.group_profesor,1,0,0,0
+access_nota_final_estudiante,access_nota_final_estudiante,model_gestion_nota_final,base.group_user,1,0,0,0
+access_nota_final_detalle_estudiante,access_nota_final_detalle_estudiante,model_gestion_nota_final_detalle,base.group_user,1,0,0,0

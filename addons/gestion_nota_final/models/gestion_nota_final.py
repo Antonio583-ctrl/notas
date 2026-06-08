@@ -62,12 +62,10 @@ class NotaFinal(models.Model):
     nota_final = fields.Float(
         string='Nota Final',
         compute='_compute_nota_final',
-        store=True,
     )
     promedio = fields.Float(
         string='Promedio',
         compute='_compute_promedio',
-        store=True,
     )
     active = fields.Boolean(
         string='Activo',
@@ -89,8 +87,7 @@ class NotaFinal(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         records = super(NotaFinal, self).create(vals_list)
-        for rec in records:
-            rec._populate_detalle()
+        records._populate_detalle()
         return records
 
     def write(self, vals):
@@ -99,6 +96,11 @@ class NotaFinal(models.Model):
             for rec in self:
                 rec._populate_detalle()
         return result
+
+    def action_recalculate(self):
+        """Fuerza la actualización de todas las notas recolectadas"""
+        self._populate_detalle()
+        return True
 
     @api.onchange('section_id', 'student_id')
     def _onchange_section_or_student(self):
@@ -112,19 +114,33 @@ class NotaFinal(models.Model):
         for rec in self:
             if not rec.section_id or not rec.student_id:
                 continue
-            tipos = Tipo.search([('seccion_id', '=', rec.section_id.id)])
+            
+            # Obtener tipos de evaluación configurados para esta sección
+            tipos_configurados = Tipo.search([('seccion_id', '=', rec.section_id.id)])
+            
+            # Limpiar líneas de detalle que ya no pertenecen a la configuración de la sección
+            lineas_invalidas = rec.detalle_ids.filtered(lambda l: l.tipo_evaluacion.id not in tipos_configurados.ids)
+            if lineas_invalidas:
+                lineas_invalidas.unlink()
+
             existing_ids = rec.detalle_ids.mapped('tipo_evaluacion.id')
-            for tipo in tipos:
+            for tipo in tipos_configurados:
                 if tipo.id not in existing_ids:
                     Detalle.create({
                         'nota_final_id': rec.id,
                         'tipo_evaluacion': tipo.id,
                     })
+            # Forzar el cálculo de los promedios para que los valores aparezcan de inmediato
+            rec.detalle_ids._compute_promedio()
 
     # Suma todos los aportes ponderados para obtener la nota final
-    @api.depends('detalle_ids.aporte')
+    @api.depends('detalle_ids.aporte', 'detalle_ids.promedio_tipo')
     def _compute_nota_final(self):
         for rec in self:
+            # Si no hay detalle (desglose), intentamos generarlo antes de sumar
+            if not rec.detalle_ids and rec.section_id:
+                rec._populate_detalle()
+            
             rec.nota_final = sum(line.aporte for line in rec.detalle_ids)
 
     # Calcula el promedio general como promedio ponderado por los pesos de cada tipo

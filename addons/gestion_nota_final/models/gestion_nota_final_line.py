@@ -29,16 +29,14 @@ class NotaFinalDetalle(models.Model):
     promedio_tipo = fields.Float(
         string='Promedio Tipo',
         compute='_compute_promedio',
-        store=True,
     )
 
     aporte = fields.Float(
         string='Aporte',
         compute='_compute_promedio',
-        store=True,
     )
 
-    @api.depends('tipo_evaluacion', 'nota_final_id.student_id', 'nota_final_id.section_id')
+    @api.depends('tipo_evaluacion', 'nota_final_id.student_id', 'nota_final_id.section_id', 'tipo_evaluacion.porcentaje', 'nota_final_id.detalle_ids')
     def _compute_promedio(self):
         Grade = self.env['grade.grade']
         Attendance = self.env['gestion.attendance']
@@ -61,7 +59,6 @@ class NotaFinalDetalle(models.Model):
             if 'asistencia' in tipo_name:
                 sessions = Attendance.search([
                     ('section_id', '=', section.id),
-                    ('tipo_evaluacion_id', '=', rec.tipo_evaluacion.id),
                     ('state', '=', 'confirmed'),
                 ])
                 if sessions:
@@ -78,12 +75,11 @@ class NotaFinalDetalle(models.Model):
 
             # 2) Si el tipo es PARTICIPACION, usar las entradas de participacion (si existe el modelo)
             if 'participacion' in tipo_name or 'participación' in tipo_name:
-                if 'gestion.participacion' in self.env.registry.models:
-                    Participacion = self.env['gestion.participacion']
-                    ParticipacionLine = self.env['gestion.participacion_line']
+                if 'gestion.participacion.clase' in self.env.registry.models:
+                    Participacion = self.env['gestion.participacion.clase']
+                    ParticipacionLine = self.env['gestion.participacion.line']
                     parts = Participacion.search([
                         ('section_id', '=', section.id),
-                        ('tipo_evaluacion_id', '=', rec.tipo_evaluacion.id),
                     ])
                     if parts:
                         plines = ParticipacionLine.search([
@@ -91,12 +87,13 @@ class NotaFinalDetalle(models.Model):
                             ('student_id', '=', student.id),
                         ])
                         if plines:
-                            scores = plines.mapped('score')
-                            if scores:
-                                promedio = sum(scores) / len(scores)
-                                rec.promedio_tipo = promedio
-                                rec.aporte = promedio * (rec.peso or 0.0)
-                                continue
+                            # Calculamos el promedio basado en el checkbox 'participo' (Boolean)
+                            total_sesiones = len(plines)
+                            veces_participo = sum(1 for line in plines if line.participo)
+                            promedio = (veces_participo / total_sesiones) * 10.0 if total_sesiones else 0.0
+                            rec.promedio_tipo = promedio
+                            rec.aporte = promedio * (rec.peso or 0.0)
+                            continue
 
             # 3) CASO GENERAL: buscar calificaciones en grade.grade vinculadas a actividades
             grades = Grade.search([

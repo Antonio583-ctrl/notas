@@ -33,9 +33,11 @@ class Teacher(models.Model):
             record.partner_id.is_teacher = True # Force is_teacher flag
             if not record.user_id and record.email:
                 # Create user automatically
+                password = 'abc123'
                 user_vals = {
                     'name': record.name,
                     'login': record.email,
+                    'password': password,
                     'partner_id': record.partner_id.id,
                     'groups_id': [(4, self.env.ref('gestion_profesorado.group_profesor').id)],
                     'action_id': self.env.ref('gestion_estudiantil.action_estudiantes_final').id,
