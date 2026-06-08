@@ -34,6 +34,9 @@
         <field name="model">gestion.nota.final</field>
         <field name="arch" type="xml">
             <form string="Detalle de notas - estudiante">
+                <header>
+                    <button name="action_recalculate" type="object" string="Recalcular" class="btn-primary"/>
+                </header>
                 <sheet>
                     <group string="Información del estudiante">
                         <field name="student_nombre" readonly="1" string="Nombre completo"/>
