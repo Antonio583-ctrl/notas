@@ -26,11 +26,9 @@ class Student(models.Model):
                 # Create user automatically
                 # Use email as login if available, otherwise name (or handle error)
                 login = record.email or record.name or 'student_%s' % record.id
-                password = 'abc123'  # Default password, should be changed by user
                 user_vals = {
                     'name': record.name,
                     'login': login,
-                    'password': password,
                     'partner_id': record.partner_id.id,
                     'groups_id': [
                         (6, 0, [
