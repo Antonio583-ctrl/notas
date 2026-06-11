@@ -1,5 +1,7 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class NotaFinal(models.Model):
@@ -29,12 +31,6 @@ class NotaFinal(models.Model):
         store=True,
         readonly=True,
     )
-    periodo_academico = fields.Char(
-        string='Período Académico',
-        related='subject_id.periodo_academico',
-        store=True,
-        readonly=True,
-    )
     teacher_id = fields.Many2one(
         'gestion.teacher',
         string='Profesor',
@@ -44,13 +40,7 @@ class NotaFinal(models.Model):
     )
     student_nombre = fields.Char(
         string='Nombre',
-        compute='_compute_student_name',
-        store=True,
-        readonly=True,
-    )
-    student_apellido = fields.Char(
-        string='Apellido',
-        compute='_compute_student_name',
+        related='student_id.partner_id.name',
         store=True,
         readonly=True,
     )
@@ -72,151 +62,65 @@ class NotaFinal(models.Model):
         default=True,
     )
 
-    # Separa el nombre completo en nombre y apellido
-    @api.depends('student_id.name')
-    def _compute_student_name(self):
-        for rec in self:
-            rec.student_nombre = ''
-            rec.student_apellido = ''
-            if rec.student_id and rec.student_id.name:
-                parts = rec.student_id.name.strip().split()
-                rec.student_nombre = parts[0] if parts else ''
-                rec.student_apellido = ' '.join(parts[1:]) if len(parts) > 1 else ''
+    def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None):
+        """Al leer la lista, recalculamos notas automáticamente."""
+        _logger.info(f"[NOTA_FINAL] search_read disparado")
+        records = self.search(domain or [], offset=offset, limit=limit, order=order)
+        _logger.info(f"[NOTA_FINAL] Registros encontrados: {len(records)}")
+        records.action_recalculate()
+        return super().search_read(domain=domain, fields=fields, offset=offset, limit=limit, order=order)
 
-    # Despues de crear una nota final, genera las lineas de detalle (tipos de evaluacion)
-    @api.model_create_multi
+    def action_recalculate(self):
+        """Recalcula todas las notas finales visibles en la lista."""
+        for rec in self:
+            rec._populate_detalle()
+            rec._recalcular_promedios()
+        return True
+
+    def _recalcular_promedios(self):
+        """Fuerza el recálculo de _compute_promedio en cada detalle."""
+        for rec in self:
+            rec.detalle_ids._compute_promedio()
+
+    # Cada vez que se cree una NotaFinal, se asegura su desglose
     def create(self, vals_list):
-        records = super(NotaFinal, self).create(vals_list)
+        records = super().create(vals_list)
         records._populate_detalle()
         return records
 
-    def write(self, vals):
-        result = super(NotaFinal, self).write(vals)
-        if 'section_id' in vals or 'student_id' in vals:
-            for rec in self:
-                rec._populate_detalle()
-        return result
-
-    def action_recalculate(self):
-        """Fuerza la actualización de todas las notas recolectadas"""
-        self._populate_detalle()
-        return True
-
-    @api.onchange('section_id', 'student_id')
-    def _onchange_section_or_student(self):
-        for rec in self:
-            rec._populate_detalle()
-
-    # Crea una linea de detalle por cada tipo de evaluacion de la seccion
+    # ==================== MÉTODOS DE APOYO ====================
     def _populate_detalle(self):
+        """Crea las líneas de detalle que falten y elimina las que ya no correspondan."""
         Tipo = self.env['gestion.tipo.evaluacion']
         Detalle = self.env['gestion.nota.final.detalle']
         for rec in self:
             if not rec.section_id or not rec.student_id:
                 continue
-            
-            # Obtener tipos de evaluación configurados para esta sección
-            tipos_configurados = Tipo.search([('seccion_id', '=', rec.section_id.id)])
-            
-            # Limpiar líneas de detalle que ya no pertenecen a la configuración de la sección
-            lineas_invalidas = rec.detalle_ids.filtered(lambda l: l.tipo_evaluacion.id not in tipos_configurados.ids)
-            if lineas_invalidas:
-                lineas_invalidas.unlink()
-
+            tipos = Tipo.search([('seccion_id', '=', rec.section_id.id)])
+            rec.detalle_ids.filtered(lambda d: d.tipo_evaluacion.id not in tipos.ids).unlink()
             existing_ids = rec.detalle_ids.mapped('tipo_evaluacion.id')
-            for tipo in tipos_configurados:
+            for tipo in tipos:
                 if tipo.id not in existing_ids:
                     Detalle.create({
                         'nota_final_id': rec.id,
                         'tipo_evaluacion': tipo.id,
                     })
-            # Forzar el cálculo de los promedios para que los valores aparezcan de inmediato
-            rec.detalle_ids._compute_promedio()
 
-    # Suma todos los aportes ponderados para obtener la nota final
-    @api.depends('detalle_ids.aporte', 'detalle_ids.promedio_tipo')
+    # ==================== CAMPOS COMPUTADOS ====================
+    @api.depends('detalle_ids.aporte')
     def _compute_nota_final(self):
+        """Suma los aportes ponderados de cada tipo para obtener la nota final."""
         for rec in self:
-            # Si no hay detalle (desglose), intentamos generarlo antes de sumar
-            if not rec.detalle_ids and rec.section_id:
-                rec._populate_detalle()
-            
-            rec.nota_final = sum(line.aporte for line in rec.detalle_ids)
+            rec.nota_final = sum(d.aporte for d in rec.detalle_ids)
 
-    # Calcula el promedio general como promedio ponderado por los pesos de cada tipo
     @api.depends('detalle_ids.promedio_tipo', 'detalle_ids.peso')
     def _compute_promedio(self):
+        """Calcula el promedio general ponderado por los pesos de cada tipo."""
         for rec in self:
             lines = rec.detalle_ids
             if not lines:
                 rec.promedio = 0.0
                 continue
-            # Suma de (promedio_tipo * peso) para cada tipo
-            suma_ponderada = sum(line.promedio_tipo * (line.peso or 0.0) for line in lines)
-            suma_pesos = sum(line.peso or 0.0 for line in lines)
-            rec.promedio = suma_ponderada / suma_pesos if suma_pesos else 0.0
-
-
-class GestionSeccionNotas(models.Model):
-    _inherit = 'gestion.seccion'
-
-    nota_final_ids = fields.One2many('gestion.nota.final', 'section_id', string='Notas Finales')
-    subject_periodo_academico = fields.Char(
-        string='Período Académico',
-        related='subject_id.periodo_academico',
-        store=True,
-        readonly=True,
-    )
-    nota_final_count = fields.Integer(
-        string='Notas Finales',
-        compute='_compute_nota_final_count',
-        store=True,
-    )
-
-    # Genera notas finales para todos los estudiantes que no tengan una en esta seccion
-    # Nota: sin un campo student_ids en gestion.seccion, se generan para todos los estudiantes
-    def _generar_notas_finales(self):
-        self.ensure_one()
-        NotaFinal = self.env['gestion.nota.final']
-        estudiantes = self.env['gestion.student'].search([])
-        for estudiante in estudiantes:
-            # Verifica que no exista ya la combinacion estudiante + seccion
-            existe = NotaFinal.search([
-                ('student_id', '=', estudiante.id),
-                ('section_id', '=', self.id),
-            ], limit=1)
-            if not existe:
-                try:
-                    NotaFinal.create({
-                        'student_id': estudiante.id,
-                        'section_id': self.id,
-                    })
-                except ValidationError:
-                    continue
-
-    # Al crear una seccion, genera las notas finales automaticamente
-    @api.model_create_multi
-    def create(self, vals_list):
-        records = super(GestionSeccionNotas, self).create(vals_list)
-        for rec in records:
-            rec._generar_notas_finales()
-        return records
-
-    def write(self, vals):
-        result = super(GestionSeccionNotas, self).write(vals)
-        for rec in self:
-            rec._generar_notas_finales()
-        return result
-
-    # Accion del boton "Ver estudiantes"
-    def action_open_nota_final(self):
-        self._generar_notas_finales()
-        action = self.env.ref('gestion_nota_final.action_nota_final').read()[0]
-        action['domain'] = [('section_id', 'in', self.ids)]
-        action['context'] = {'default_section_id': self.id}
-        return action
-
-    @api.depends('nota_final_ids')
-    def _compute_nota_final_count(self):
-        for rec in self:
-            rec.nota_final_count = len(rec.nota_final_ids)
+            weighted = sum(l.promedio_tipo * (l.peso or 0.0) for l in lines)
+            total_weight = sum(l.peso or 0.0 for l in lines)
+            rec.promedio = weighted / total_weight if total_weight else 0.0

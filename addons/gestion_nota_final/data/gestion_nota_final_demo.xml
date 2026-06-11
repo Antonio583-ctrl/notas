@@ -2,14 +2,17 @@
 <odoo noupdate="1">
 
     <!-- ============================================================ -->
-    <!-- 1. DATOS BASE (Período, Profesores, Estudiantes)            -->
+    <!-- 1. DATOS BASE (Período)                                      -->
     <!-- ============================================================ -->
 
-    <!-- Período activo -->
     <record id="periodo_2026_1" model="gestion.periodo">
         <field name="name">2026-I</field>
         <field name="activo">True</field>
     </record>
+
+    <!-- ============================================================ -->
+    <!-- 2. DATOS BASE (Profesores, Estudiantes)                      -->
+    <!-- ============================================================ -->
 
     <!-- Profesor 1: Matemáticas -->
     <record id="partner_teacher_1" model="res.partner">

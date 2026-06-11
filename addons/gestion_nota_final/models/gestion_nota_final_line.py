@@ -38,74 +38,90 @@ class NotaFinalDetalle(models.Model):
 
     @api.depends('tipo_evaluacion', 'nota_final_id.student_id', 'nota_final_id.section_id', 'tipo_evaluacion.porcentaje', 'nota_final_id.detalle_ids')
     def _compute_promedio(self):
-        Grade = self.env['grade.grade']
-        Attendance = self.env['gestion.attendance']
-        AttendanceLine = self.env['gestion.attendance_line']
-
+        """Cálculo principal: se ejecuta automáticamente al leer los campos.
+        Maneja asistencia, participación y calificaciones generales."""
         for rec in self:
             rec.promedio_tipo = 0.0
             rec.aporte = 0.0
             if not rec.tipo_evaluacion or not rec.nota_final_id:
                 continue
-            
             student = rec.nota_final_id.student_id
             section = rec.nota_final_id.section_id
             if not student or not section:
                 continue
-
             tipo_name = (rec.tipo_evaluacion.name or '').lower()
 
-            # 1) Si el tipo es ASISTENCIA, usar las sesiones de asistencia confirmadas
+            # 1) ASISTENCIA: busca sesiones de asistencia confirmadas
             if 'asistencia' in tipo_name:
-                sessions = Attendance.search([
-                    ('section_id', '=', section.id),
-                    ('state', '=', 'confirmed'),
-                ])
-                if sessions:
-                    lines = AttendanceLine.search([
-                        ('attendance_id', 'in', sessions.ids),
-                        ('student_id', '=', student.id),
-                    ])
-                    if lines:
-                        present = sum(1 for line in lines if line.present)
-                        promedio = (present / len(lines)) * 10.0
-                        rec.promedio_tipo = promedio
-                        rec.aporte = promedio * (rec.peso or 0.0)
-                        continue
+                rec._calcular_desde_asistencia(student, section)
+                continue
 
-            # 2) Si el tipo es PARTICIPACION, usar las entradas de participacion (si existe el modelo)
+            # 2) PARTICIPACIÓN: busca registros de participación confirmados
             if 'participacion' in tipo_name or 'participación' in tipo_name:
-                if 'gestion.participacion.clase' in self.env.registry.models:
-                    Participacion = self.env['gestion.participacion.clase']
-                    ParticipacionLine = self.env['gestion.participacion.line']
-                    parts = Participacion.search([
-                        ('section_id', '=', section.id),
-                    ])
-                    if parts:
-                        plines = ParticipacionLine.search([
-                            ('participacion_id', 'in', parts.ids),
-                            ('student_id', '=', student.id),
-                        ])
-                        if plines:
-                            # Calculamos el promedio basado en el checkbox 'participo' (Boolean)
-                            total_sesiones = len(plines)
-                            veces_participo = sum(1 for line in plines if line.participo)
-                            promedio = (veces_participo / total_sesiones) * 10.0 if total_sesiones else 0.0
-                            rec.promedio_tipo = promedio
-                            rec.aporte = promedio * (rec.peso or 0.0)
-                            continue
+                rec._calcular_desde_participacion(student, section)
+                continue
 
-            # 3) CASO GENERAL: buscar calificaciones en grade.grade vinculadas a actividades
-            grades = Grade.search([
-                ('student_id', '=', student.id),
-                ('activity_id.section_id', '=', section.id),
-                ('activity_id.tipo_evaluacion_id', '=', rec.tipo_evaluacion.id),
-            ])
-            if not grades:
-                continue
-            scores = grades.mapped('score')
-            if not scores:
-                continue
-            promedio = sum(scores) / len(scores)
-            rec.promedio_tipo = promedio
-            rec.aporte = promedio * (rec.peso or 0.0)
+            # 3) CASO GENERAL: calificaciones normales de actividades
+            rec._calcular_desde_calificaciones()
+
+    # ==================== MÉTODOS PRIVADOS POR TIPO ====================
+    def _calcular_desde_asistencia(self, student, section):
+        Attendance = self.env['gestion.attendance']
+        AttendanceLine = self.env['gestion.attendance_line']
+        sessions = Attendance.search([
+            ('section_id', '=', section.id),
+            ('state', '=', 'confirmed'),
+        ])
+        if not sessions:
+            return
+        lines = AttendanceLine.search([
+            ('attendance_id', 'in', sessions.ids),
+            ('student_id', '=', student.id),
+        ])
+        if not lines:
+            return
+        present = sum(1 for line in lines if line.present)
+        promedio = (present / len(lines)) * 10.0
+        self.promedio_tipo = promedio
+        self.aporte = promedio * (self.peso or 0.0)
+
+    def _calcular_desde_participacion(self, student, section):
+        if 'gestion.participacion.clase' not in self.env.registry.models:
+            return
+        Participacion = self.env['gestion.participacion.clase']
+        ParticipacionLine = self.env['gestion.participacion.line']
+        parts = Participacion.search([
+            ('section_id', '=', section.id),
+        ])
+        if not parts:
+            return
+        plines = ParticipacionLine.search([
+            ('participacion_id', 'in', parts.ids),
+            ('student_id', '=', student.id),
+        ])
+        if not plines:
+            return
+        total_sesiones = len(plines)
+        veces_participo = sum(1 for line in plines if line.participo)
+        promedio = (veces_participo / total_sesiones) * 10.0 if total_sesiones else 0.0
+        self.promedio_tipo = promedio
+        self.aporte = promedio * (self.peso or 0.0)
+
+    def _calcular_desde_calificaciones(self):
+        Grade = self.env['grade.grade']
+        grades = Grade.search([
+            ('student_id', '=', self.nota_final_id.student_id.id),
+            ('activity_id.section_id', '=', self.nota_final_id.section_id.id),
+            ('activity_id.tipo_evaluacion_id', '=', self.tipo_evaluacion.id),
+        ])
+        _logger.info(f"[NOTA_FINAL] Buscando grades para tipo={self.tipo_evaluacion.name}, student={self.nota_final_id.student_id.name}, section={self.nota_final_id.section_id.name}, encontrados={len(grades)}")
+        if not grades:
+            return
+        scores = grades.mapped('score')
+        _logger.info(f"[NOTA_FINAL] Scores encontrados: {scores}")
+        if not scores:
+            return
+        promedio = sum(scores) / len(scores)
+        _logger.info(f"[NOTA_FINAL] Promedio calculado: {promedio}")
+        self.promedio_tipo = promedio
+        self.aporte = promedio * (self.peso or 0.0)
