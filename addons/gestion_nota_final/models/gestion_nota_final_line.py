@@ -1,4 +1,6 @@
 from odoo import api, fields, models
+import logging
+_logger = logging.getLogger(__name__)
 
 
 class NotaFinalDetalle(models.Model):
@@ -29,14 +31,16 @@ class NotaFinalDetalle(models.Model):
     promedio_tipo = fields.Float(
         string='Promedio Tipo',
         compute='_compute_promedio',
+        store=True,
     )
 
     aporte = fields.Float(
         string='Aporte',
         compute='_compute_promedio',
+        store=True,
     )
 
-    @api.depends('tipo_evaluacion', 'nota_final_id.student_id', 'nota_final_id.section_id', 'tipo_evaluacion.porcentaje', 'nota_final_id.detalle_ids')
+    @api.depends('tipo_evaluacion', 'nota_final_id.student_id', 'nota_final_id.section_id', 'tipo_evaluacion.porcentaje', 'nota_final_id.recalc_trigger')
     def _compute_promedio(self):
         """Cálculo principal: se ejecuta automáticamente al leer los campos.
         Maneja asistencia, participación y calificaciones generales."""

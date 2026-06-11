@@ -52,40 +52,95 @@ class NotaFinal(models.Model):
     nota_final = fields.Float(
         string='Nota Final',
         compute='_compute_nota_final',
+        store=True,
     )
     promedio = fields.Float(
         string='Promedio',
         compute='_compute_promedio',
+        store=True,
+    )
+    recalc_trigger = fields.Integer(
+        string='Recalcular Trigger',
+        default=0,
     )
     active = fields.Boolean(
         string='Activo',
         default=True,
     )
 
+    @api.model
+    def _search(self, domain, offset=0, limit=None, order=None):
+        """Asegura que los registros de nota final existan para todos los estudiantes antes de buscar."""
+        if not self.env.context.get('bypass_ensure'):
+            self.sudo().with_context(bypass_ensure=True)._ensure_nota_final_records()
+        return super()._search(domain, offset=offset, limit=limit, order=order)
+
+    @api.model
+    def _ensure_nota_final_records(self):
+        """Asegura que todos los estudiantes inscritos en secciones activas tengan su registro de nota final."""
+        Seccion = self.env['gestion.seccion']
+        NotaFinal = self.env['gestion.nota.final'].sudo().with_context(bypass_ensure=True)
+        
+        # Buscar todas las secciones activas (abiertas o en progreso)
+        secciones = Seccion.search([('state', 'in', ['abierto', 'en progreso'])])
+        if not secciones:
+            return
+            
+        # Buscar todas las notas finales ya existentes para estas secciones
+        existentes = NotaFinal.search([('section_id', 'in', secciones.ids)])
+        existentes_map = {(r.student_id.id, r.section_id.id) for r in existentes}
+        
+        notas_to_create = []
+        for seccion in secciones:
+            for student in seccion.student_ids:
+                if (student.id, seccion.id) not in existentes_map:
+                    notas_to_create.append({
+                        'student_id': student.id,
+                        'section_id': seccion.id,
+                    })
+                    
+        if notas_to_create:
+            created_notas = NotaFinal.create(notas_to_create)
+            # Recalcular las notas recién creadas
+            created_notas.action_recalculate()
+
+    @api.model
+    def trigger_recalculate(self, student_id, section_id):
+        """Busca o crea la nota final para un estudiante y sección, y fuerza su recálculo."""
+        if not student_id or not section_id:
+            return
+        NotaFinal = self.env['gestion.nota.final'].sudo().with_context(bypass_ensure=True)
+        nota = NotaFinal.search([
+            ('student_id', '=', student_id),
+            ('section_id', '=', section_id),
+        ], limit=1)
+        if not nota:
+            nota = NotaFinal.create({
+                'student_id': student_id,
+                'section_id': section_id,
+            })
+        nota.action_recalculate()
+
     def search_read(self, domain=None, fields=None, offset=0, limit=None, order=None):
         """Al leer la lista, recalculamos notas automáticamente."""
         _logger.info(f"[NOTA_FINAL] search_read disparado")
         records = self.search(domain or [], offset=offset, limit=limit, order=order)
         _logger.info(f"[NOTA_FINAL] Registros encontrados: {len(records)}")
-        records.action_recalculate()
+        records.sudo().action_recalculate()
         return super().search_read(domain=domain, fields=fields, offset=offset, limit=limit, order=order)
 
     def action_recalculate(self):
-        """Recalcula todas las notas finales visibles en la lista."""
+        """Recalcula todas las notas finales e incrementa recalc_trigger."""
         for rec in self:
             rec._populate_detalle()
-            rec._recalcular_promedios()
+            # Al modificar recalc_trigger, Odoo recomputa y actualiza los campos almacenados
+            rec.write({'recalc_trigger': rec.recalc_trigger + 1})
         return True
-
-    def _recalcular_promedios(self):
-        """Fuerza el recálculo de _compute_promedio en cada detalle."""
-        for rec in self:
-            rec.detalle_ids._compute_promedio()
 
     # Cada vez que se cree una NotaFinal, se asegura su desglose
     def create(self, vals_list):
         records = super().create(vals_list)
-        records._populate_detalle()
+        records.sudo()._populate_detalle()
         return records
 
     # ==================== MÉTODOS DE APOYO ====================
@@ -107,13 +162,13 @@ class NotaFinal(models.Model):
                     })
 
     # ==================== CAMPOS COMPUTADOS ====================
-    @api.depends('detalle_ids.aporte')
+    @api.depends('recalc_trigger', 'detalle_ids.aporte')
     def _compute_nota_final(self):
         """Suma los aportes ponderados de cada tipo para obtener la nota final."""
         for rec in self:
             rec.nota_final = sum(d.aporte for d in rec.detalle_ids)
 
-    @api.depends('detalle_ids.promedio_tipo', 'detalle_ids.peso')
+    @api.depends('recalc_trigger', 'detalle_ids.promedio_tipo', 'detalle_ids.peso')
     def _compute_promedio(self):
         """Calcula el promedio general ponderado por los pesos de cada tipo."""
         for rec in self:

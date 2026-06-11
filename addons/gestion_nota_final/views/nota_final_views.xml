@@ -16,7 +16,7 @@
         <field name="name">gestion.nota.final.list</field>
         <field name="model">gestion.nota.final</field>
         <field name="arch" type="xml">
-            <list string="Notas finales por estudiante">
+            <list string="Notas finales por estudiante" create="0" edit="0" delete="0">
                 <field name="student_nombre" string="Nombre"/>
                 <field name="subject_id" string="Materia"/>
                 <field name="section_id" string="Sección"/>
@@ -32,7 +32,7 @@
         <field name="name">gestion.nota.final.form</field>
         <field name="model">gestion.nota.final</field>
         <field name="arch" type="xml">
-            <form string="Detalle de notas - estudiante">
+            <form string="Detalle de notas - estudiante" create="0" edit="0" delete="0">
                 <header>
                     <button name="action_recalculate" type="object" string="Sincronizar Notas" class="btn-primary"/>
                 </header>
@@ -50,7 +50,7 @@
                     <notebook>
                         <page string="Desglose por tipo de evaluación">
                             <field name="detalle_ids" nolabel="1">
-                                <list>
+                                <list create="0" edit="0" delete="0">
                                     <field name="tipo_evaluacion" string="Tipo de nota"/>
                                     <field name="promedio_tipo" string="Puntaje obtenido"/>
                                     <field name="peso" string="Porcentaje"/>
