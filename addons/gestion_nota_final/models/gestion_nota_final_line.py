@@ -73,7 +73,7 @@ class NotaFinalDetalle(models.Model):
         Attendance = self.env['gestion.attendance']
         AttendanceLine = self.env['gestion.attendance_line']
         sessions = Attendance.search([
-            ('seccion_id', '=', section.id),
+            ('section_id', '=', section.id),
             ('state', '=', 'confirmed'),
         ])
         if not sessions:
