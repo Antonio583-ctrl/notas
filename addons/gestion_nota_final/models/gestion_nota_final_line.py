@@ -95,7 +95,7 @@ class NotaFinalDetalle(models.Model):
         Participacion = self.env['gestion.participacion.clase']
         ParticipacionLine = self.env['gestion.participacion.line']
         parts = Participacion.search([
-            ('section_id', '=', section.id),
+            ('seccion_id', '=', section.id),
         ])
         if not parts:
             return
